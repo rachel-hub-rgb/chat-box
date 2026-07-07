@@ -1,118 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Mini Chat App</title>
-
-<!-- Firebase (IMPORTANT: v8 for compatibility) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Story Game</title>
 
 <style>
-body { font-family: Arial; background:#111; color:white; text-align:center; }
-#chat { width:90%; height:300px; overflow-y:auto; margin:10px auto; border:1px solid white; padding:10px; }
-.msg { text-align:left; margin:5px; padding:5px; background:#222; border-radius:5px; }
-input { padding:10px; margin:5px; }
-button { padding:10px; cursor:pointer; }
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.game{
+    width:90%;
+    max-width:650px;
+    text-align:center;
+}
+
+img{
+    width:100%;
+    border-radius:12px;
+}
+
+#text{
+    font-size:22px;
+    margin:20px 0;
+}
+
+button{
+    width:100%;
+    margin:8px 0;
+    padding:15px;
+    font-size:18px;
+    cursor:pointer;
+    border:none;
+    border-radius:8px;
+    background:#2d89ef;
+    color:white;
+}
+
+button:hover{
+    background:#1b5fb5;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🔥 4 User Chat Test</h2>
+<div class="game">
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <input id="email" placeholder="email"><br>
-  <input id="pass" type="password" placeholder="password"><br>
-  <button onclick="login()">Login</button>
-</div>
+<img id="image" src="images/start.jpg">
 
-<!-- APP -->
-<div id="app" style="display:none;">
-  <h3>Welcome <span id="user"></span></h3>
+<div id="text"></div>
 
-  <div id="chat"></div>
+<div id="choices"></div>
 
-  <input id="msg" placeholder="message">
-  <button onclick="sendMsg()">Send</button>
-
-  <br><br>
-  <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-// 🔥 YOUR FIREBASE CONFIG (paste yours here)
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+
+const story = {
+
+start:{
+image:"images/start.jpg",
+text:"You wake up at the football ground.",
+choices:[
+{text:"Start Training",next:"train"},
+{text:"Go Home",next:"home"}
+]
+},
+
+train:{
+image:"images/train.jpg",
+text:"You trained for 4 hours.",
+choices:[
+{text:"Play Match",next:"match"},
+{text:"Rest",next:"home"}
+]
+},
+
+home:{
+image:"images/home.jpg",
+text:"You went home and relaxed.",
+choices:[
+{text:"Sleep",next:"bad"},
+{text:"Go Back",next:"train"}
+]
+},
+
+match:{
+image:"images/match.jpg",
+text:"You scored the winning goal!",
+choices:[
+{text:"Finish",next:"win"}
+]
+},
+
+win:{
+image:"images/win.jpg",
+text:"🏆 GOOD ENDING",
+choices:[
+{text:"Play Again",next:"start"}
+]
+},
+
+bad:{
+image:"images/bad.jpg",
+text:"😴 BAD ENDING",
+choices:[
+{text:"Try Again",next:"start"}
+]
+}
+
 };
 
-firebase.initializeApp(firebaseConfig);
+function showScene(scene){
 
-const auth = firebase.auth();
-const db = firebase.database();
+document.getElementById("image").src=story[scene].image;
 
-let currentUser = "";
+document.getElementById("text").innerHTML=story[scene].text;
 
-// 🔑 LOGIN
-function login(){
-  let email = document.getElementById("email").value;
-  let pass = document.getElementById("pass").value;
+const area=document.getElementById("choices");
 
-  auth.signInWithEmailAndPassword(email, pass)
-  .then(user => {
-    currentUser = user.user.email.split("@")[0];
+area.innerHTML="";
 
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("user").innerText = currentUser;
+story[scene].choices.forEach(choice=>{
 
-    loadChat();
-  })
-  .catch(err => alert(err.message));
+const btn=document.createElement("button");
+
+btn.innerText=choice.text;
+
+btn.onclick=()=>showScene(choice.next);
+
+area.appendChild(btn);
+
+});
+
 }
 
-// 💬 SEND MESSAGE
-function sendMsg(){
-  let text = document.getElementById("msg").value;
-  if(text === "") return;
+showScene("start");
 
-  db.ref("messages").push({
-    user: currentUser,
-    text: text,
-    time: Date.now()
-  });
-
-  document.getElementById("msg").value = "";
-}
-
-// 📥 LOAD CHAT LIVE
-function loadChat(){
-  db.ref("messages").on("value", snap => {
-    let data = snap.val();
-    let chat = document.getElementById("chat");
-    chat.innerHTML = "";
-
-    for(let id in data){
-      chat.innerHTML += `<div class="msg"><b>${data[id].user}:</b> ${data[id].text}</div>`;
-    }
-
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
-// 🚪 LOGOUT
-function logout(){
-  auth.signOut();
-  location.reload();
-}
 </script>
 
 </body>

@@ -1,5 +1,69 @@
+<!doctpye html>
 <html>
-  <body>
+<head>
+<style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:black;
+    overflow:hidden;
+    font-family:Arial, sans-serif;
+}
+
+/* Full image without cropping */
+img{
+    width:100%;
+    height:100vh;
+    object-fit:contain;
+    display:block;
+}
+
+/* Center buttons */
+.options{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+/* Button style */
+button{
+    width:220px;
+    padding:15px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    background:#1e90ff;
+    color:white;
+    transition:.3s;
+}
+
+button:hover{
+    background:#0066cc;
+}
+</style>
+</head>
+
+<body>
+
+ 
     <img src="slide.png">
-  </body>
+
+<div class="options">
+    <button onclick="showScene('training')">Start Training</button>
+    <button onclick="showScene('home')">Go Home</button>
+</div>
+
+</body>
 </html>
